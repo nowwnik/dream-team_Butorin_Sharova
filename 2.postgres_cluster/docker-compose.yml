@@ -1,36 +1,36 @@
 version: '3.8'
 
 services:
-  my_primary:
+  master_server:
     image: postgres:16
-    container_name: my_primary
+    container_name: master_server
     ports:
       - "5433:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - ./primary/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./primary/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./master_server/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./master_server/pg_hba.conf:/etc/postgresql/pg_hba.conf
     command: >
       postgres -c config_file=/etc/postgresql/postgresql.conf -c hba_file=/etc/postgresql/pg_hba.conf
     networks:
       - pg_network
 
-  my_standby:
+  standby_server:
     image: postgres:16
-    container_name: my_standby
+    container_name: standby_server
     ports:
       - "5434:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     depends_on:
-      - my_primary
+      - master_server
     volumes:
-      - ./standby/postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./standby/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - ./standby/init.sh:/docker-entrypoint-initdb.d/init_standby.sh
+      - ./standby_server/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./standby_server/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./standby_server/init.sh:/docker-entrypoint-initdb.d/init_standby.sh
     command: >
       bash /docker-entrypoint-initdb.d/init_standby.sh
     networks:
